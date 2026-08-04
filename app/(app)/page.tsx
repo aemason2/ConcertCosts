@@ -22,7 +22,7 @@ export default async function DashboardPage() {
       <div>
         <h2 className="text-2xl font-display font-bold">Dashboard</h2>
         <p className="text-sm opacity-70">
-          Summaries and charts based on the concerts you have logged.
+          Your concert spending at a glance — including a pie chart of spend by category.
         </p>
       </div>
       <DashboardView concerts={(data ?? []) as Concert[]} />
