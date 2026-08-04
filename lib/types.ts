@@ -11,6 +11,8 @@ export type Concert = {
   hours_at_event: number;
   ticket_cost: number;
   ticket_fees: number;
+  tax_cost: number;
+  delivery_cost: number;
   parking_cost: number;
   food_drink_cost: number;
   merchandise_cost: number;
@@ -25,8 +27,10 @@ export type Concert = {
 export type ConcertInsert = Omit<Concert, "id" | "created_at">;
 
 export const COST_FIELDS = [
-  { key: "ticket_cost", label: "Ticket cost" },
+  { key: "ticket_cost", label: "Ticket cost (base)" },
   { key: "ticket_fees", label: "Ticket fees" },
+  { key: "tax_cost", label: "Taxes" },
+  { key: "delivery_cost", label: "Delivery charges" },
   { key: "parking_cost", label: "Parking" },
   { key: "food_drink_cost", label: "Food & drink" },
   { key: "merchandise_cost", label: "Merchandise" },

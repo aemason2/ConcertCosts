@@ -7,6 +7,7 @@ import { COST_FIELDS } from "@/lib/types";
 import { formatMoney, totalCost, toNumber } from "@/lib/metrics";
 import { VenueMapPicker } from "@/components/VenueMapPicker";
 import { ArtistPicker } from "@/components/ArtistPicker";
+import { TicketLinkImporter } from "@/components/TicketLinkImporter";
 
 const emptyForm = {
   artist: "",
@@ -18,6 +19,8 @@ const emptyForm = {
   hours_at_event: "3",
   ticket_cost: "0",
   ticket_fees: "0",
+  tax_cost: "0",
+  delivery_cost: "0",
   parking_cost: "0",
   food_drink_cost: "0",
   merchandise_cost: "0",
@@ -83,6 +86,8 @@ export function AddConcertForm({ userId }: { userId: string }) {
       hours_at_event: toNumber(form.hours_at_event),
       ticket_cost: toNumber(form.ticket_cost),
       ticket_fees: toNumber(form.ticket_fees),
+      tax_cost: toNumber(form.tax_cost),
+      delivery_cost: toNumber(form.delivery_cost),
       parking_cost: toNumber(form.parking_cost),
       food_drink_cost: toNumber(form.food_drink_cost),
       merchandise_cost: toNumber(form.merchandise_cost),
@@ -200,13 +205,29 @@ export function AddConcertForm({ userId }: { userId: string }) {
           <div className="flex flex-wrap items-end justify-between gap-2">
             <div>
               <h2 className="card-title text-lg">Costs</h2>
-              <p className="text-sm opacity-70">Enter dollars for each category. Leave as 0 if none.</p>
+              <p className="text-sm opacity-70">
+                Paste a ticket link to auto-fill prices, or enter dollars by hand.
+              </p>
             </div>
             <div className="stat bg-primary/10 rounded-box px-4 py-2">
               <div className="stat-title text-xs">Running total</div>
               <div className="stat-value text-2xl text-primary">{formatMoney(liveTotal)}</div>
             </div>
           </div>
+
+          <TicketLinkImporter
+            onApply={(costs) => {
+              setForm((prev) => ({
+                ...prev,
+                ticket_cost: costs.ticket_cost,
+                ticket_fees: costs.ticket_fees,
+                tax_cost: costs.tax_cost,
+                delivery_cost: costs.delivery_cost,
+              }));
+              setSuccess(false);
+              setError(null);
+            }}
+          />
 
           <div className="grid gap-3 sm:grid-cols-2">
             {COST_FIELDS.map((field) => (
