@@ -8,6 +8,10 @@ import { formatMoney, totalCost, toNumber } from "@/lib/metrics";
 import { VenueMapPicker } from "@/components/VenueMapPicker";
 import { ArtistPicker } from "@/components/ArtistPicker";
 import { TicketLinkImporter } from "@/components/TicketLinkImporter";
+import {
+  ConcertPhotoPicker,
+  safePhotoFileName,
+} from "@/components/ConcertPhotoPicker";
 
 const emptyForm = {
   artist: "",
@@ -39,6 +43,7 @@ export function AddConcertForm({ userId }: { userId: string }) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
 
   const liveTotal = useMemo(() => {
     const costShape = Object.fromEntries(
@@ -73,6 +78,30 @@ export function AddConcertForm({ userId }: { userId: string }) {
 
     const artist = form.artist.trim();
     const supabase = createClient();
+
+    let photo_url: string | null = null;
+    if (photoFile) {
+      const path = `${userId}/${Date.now()}-${safePhotoFileName(photoFile.name)}`;
+      const { error: uploadError } = await supabase.storage
+        .from("concert-photos")
+        .upload(path, photoFile, {
+          cacheControl: "3600",
+          upsert: false,
+          contentType: photoFile.type,
+        });
+
+      if (uploadError) {
+        setSaving(false);
+        setError(`Photo upload failed: ${uploadError.message}`);
+        return;
+      }
+
+      const { data: publicData } = supabase.storage
+        .from("concert-photos")
+        .getPublicUrl(path);
+      photo_url = publicData.publicUrl;
+    }
+
     const payload = {
       user_id: userId,
       // Kept for the database; the form no longer asks for a separate concert name.
@@ -96,6 +125,7 @@ export function AddConcertForm({ userId }: { userId: string }) {
       other_cost: toNumber(form.other_cost),
       fun_rating: Math.min(10, Math.max(1, Math.round(toNumber(form.fun_rating)))),
       notes: form.notes.trim() || null,
+      photo_url,
     };
 
     const { error: insertError } = await supabase.from("concerts").insert(payload);
@@ -109,6 +139,7 @@ export function AddConcertForm({ userId }: { userId: string }) {
 
     setSuccess(true);
     setForm(emptyForm);
+    setPhotoFile(null);
     setVenuePickerKey((k) => k + 1);
     setArtistPickerKey((k) => k + 1);
     router.refresh();
@@ -197,6 +228,8 @@ export function AddConcertForm({ userId }: { userId: string }) {
               placeholder="Great opener, long merch line..."
             />
           </Field>
+
+          <ConcertPhotoPicker file={photoFile} onChange={setPhotoFile} />
         </div>
       </section>
 
@@ -285,6 +318,7 @@ export function AddConcertForm({ userId }: { userId: string }) {
           className="btn btn-ghost"
           onClick={() => {
             setForm(emptyForm);
+            setPhotoFile(null);
             setVenuePickerKey((k) => k + 1);
             setArtistPickerKey((k) => k + 1);
             setError(null);

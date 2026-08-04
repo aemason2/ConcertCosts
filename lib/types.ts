@@ -21,6 +21,7 @@ export type Concert = {
   other_cost: number;
   fun_rating: number;
   notes: string | null;
+  photo_url: string | null;
   created_at: string;
 };
 

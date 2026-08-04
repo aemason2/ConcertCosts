@@ -29,6 +29,16 @@ export function ConcertList({ concerts }: { concerts: Concert[] }) {
             className="card bg-base-100 border border-base-300 shadow-sm"
           >
             <div className="card-body gap-4">
+              {concert.photo_url ? (
+                <div className="rounded-box overflow-hidden border border-base-300 -mx-2 -mt-2 sm:mx-0 sm:mt-0">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={concert.photo_url}
+                    alt={`${concert.artist} concert`}
+                    className="w-full max-h-56 object-cover"
+                  />
+                </div>
+              ) : null}
               <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
                 <div>
                   <h3 className="card-title text-xl">{concert.artist}</h3>
