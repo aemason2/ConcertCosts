@@ -31,8 +31,7 @@ export function ConcertList({ concerts }: { concerts: Concert[] }) {
             <div className="card-body gap-4">
               <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
                 <div>
-                  <h3 className="card-title text-xl">{concert.concert_name}</h3>
-                  <p className="opacity-80">{concert.artist}</p>
+                  <h3 className="card-title text-xl">{concert.artist}</h3>
                   <p className="text-sm opacity-60 mt-1">
                     {concert.venue} · {concert.city}, {concert.state}
                   </p>

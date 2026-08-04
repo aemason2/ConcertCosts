@@ -68,17 +68,17 @@ export function DashboardView({ concerts }: { concerts: Concert[] }) {
 
   const categoryData = categoryTotals(concerts).filter((c) => c.total > 0);
   const costByConcert = withMetrics.map((m) => ({
-    name: truncate(m.concert.concert_name, 16),
+    name: truncate(m.concert.artist, 16),
     total: Number(m.total.toFixed(2)),
   }));
   const funByConcert = concerts.map((c) => ({
-    name: truncate(c.concert_name, 16),
+    name: truncate(c.artist, 16),
     fun: Number(c.fun_rating),
   }));
   const valueByConcert = withMetrics
     .filter((m) => m.funPer100 != null)
     .map((m) => ({
-      name: truncate(m.concert.concert_name, 16),
+      name: truncate(m.concert.artist, 16),
       value: Number((m.funPer100 ?? 0).toFixed(2)),
     }));
 
@@ -95,7 +95,7 @@ export function DashboardView({ concerts }: { concerts: Concert[] }) {
         />
         <StatCard
           title="Best value"
-          value={bestValue?.concert.concert_name ?? "—"}
+          value={bestValue?.concert.artist ?? "—"}
           subtitle={
             bestValue?.funPer100 != null
               ? `${formatNumber(bestValue.funPer100, 2)} pts / $100`
@@ -104,12 +104,12 @@ export function DashboardView({ concerts }: { concerts: Concert[] }) {
         />
         <StatCard
           title="Most expensive"
-          value={mostExpensive?.concert.concert_name ?? "—"}
+          value={mostExpensive?.concert.artist ?? "—"}
           subtitle={mostExpensive ? formatMoney(mostExpensive.total) : undefined}
         />
         <StatCard
           title="Highest fun"
-          value={highestFun?.concert_name ?? "—"}
+          value={highestFun?.artist ?? "—"}
           subtitle={highestFun ? `${highestFun.fun_rating} / 10` : undefined}
         />
       </div>

@@ -6,9 +6,9 @@ import { createClient } from "@/lib/supabase/client";
 import { COST_FIELDS } from "@/lib/types";
 import { formatMoney, totalCost, toNumber } from "@/lib/metrics";
 import { VenueMapPicker } from "@/components/VenueMapPicker";
+import { ArtistPicker } from "@/components/ArtistPicker";
 
 const emptyForm = {
-  concert_name: "",
   artist: "",
   venue: "",
   city: "",
@@ -32,6 +32,7 @@ export function AddConcertForm({ userId }: { userId: string }) {
   const router = useRouter();
   const [form, setForm] = useState(emptyForm);
   const [venuePickerKey, setVenuePickerKey] = useState(0);
+  const [artistPickerKey, setArtistPickerKey] = useState(0);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -55,17 +56,25 @@ export function AddConcertForm({ userId }: { userId: string }) {
     setError(null);
     setSuccess(false);
 
+    if (!form.artist.trim()) {
+      setSaving(false);
+      setError("Please choose an artist or band.");
+      return;
+    }
+
     if (!form.venue.trim() || !form.city.trim() || !form.state.trim()) {
       setSaving(false);
       setError("Please search and pick a venue from the map so city and state are filled in.");
       return;
     }
 
+    const artist = form.artist.trim();
     const supabase = createClient();
     const payload = {
       user_id: userId,
-      concert_name: form.concert_name.trim(),
-      artist: form.artist.trim(),
+      // Kept for the database; the form no longer asks for a separate concert name.
+      concert_name: artist,
+      artist,
       venue: form.venue.trim(),
       city: form.city.trim(),
       state: form.state.trim(),
@@ -96,6 +105,7 @@ export function AddConcertForm({ userId }: { userId: string }) {
     setSuccess(true);
     setForm(emptyForm);
     setVenuePickerKey((k) => k + 1);
+    setArtistPickerKey((k) => k + 1);
     router.refresh();
   }
 
@@ -118,24 +128,14 @@ export function AddConcertForm({ userId }: { userId: string }) {
           <p className="text-sm opacity-70 -mt-2">Who played, where you were, and when.</p>
 
           <div className="grid gap-3 sm:grid-cols-2">
-            <Field label="Concert name" required>
-              <input
-                className="input input-bordered w-full"
-                required
-                value={form.concert_name}
-                onChange={(e) => setField("concert_name", e.target.value)}
-                placeholder="Summer Stadium Night"
-              />
-            </Field>
-            <Field label="Artist or band" required>
-              <input
-                className="input input-bordered w-full"
+            <div className="sm:col-span-2">
+              <ArtistPicker
+                key={artistPickerKey}
                 required
                 value={form.artist}
-                onChange={(e) => setField("artist", e.target.value)}
-                placeholder="The Weeknd"
+                onChange={(artist) => setField("artist", artist)}
               />
-            </Field>
+            </div>
 
             <VenueMapPicker
               key={venuePickerKey}
@@ -265,6 +265,7 @@ export function AddConcertForm({ userId }: { userId: string }) {
           onClick={() => {
             setForm(emptyForm);
             setVenuePickerKey((k) => k + 1);
+            setArtistPickerKey((k) => k + 1);
             setError(null);
             setSuccess(false);
           }}
